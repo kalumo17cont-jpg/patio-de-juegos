@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Patio de Juegos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schoolbell&family=Patrick+Hand&family=Nunito:wght@500;700;800&display=swap">
+<style>
+/* Layout: salón de primaria — pared con abecedario, tablero verde con tiza, cartelera de corcho con los juegos clavados, hoja de cuaderno con la guía, piso de madera */
+:root{
+  --pared:#d7ecf3; --zocalo:#9cc9d8;
+  --tablero:#2f5d46; --tablero-osc:#24493a; --tiza:#f4f6ef; --tiza-suave:#cfdccf;
+  --madera:#a86a3d; --madera-osc:#7a4826; --corcho:#c99a63; --corcho-osc:#b5844f;
+  --papel:#fffdf7; --tinta:#26323a; --tinta-suave:#5b6870; --linea:#b9d4ea; --margen:#e4646a;
+  --rojo:#e4545b; --amarillo:#f5c33b; --azul:#3f8fd2; --verde:#4cae6a; --naranja:#f08a3c; --morado:#8a6bc9;
+  --tiza-font:"Schoolbell","Comic Sans MS",cursive;
+  --mano:"Patrick Hand","Comic Sans MS",cursive;
+  --body:"Nunito","Segoe UI",system-ui,sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--pared);color:var(--tinta);font-family:var(--body);font-size:16px;line-height:1.5;
+  background-image:linear-gradient(to bottom,var(--pared) 0,var(--pared) calc(100% - 120px),var(--zocalo) calc(100% - 120px));}
+.wrap{max-width:1140px;margin:0 auto;padding-inline:16px}
+h1,h2,h3{margin:0;text-wrap:balance;line-height:1.1}
+button{font:inherit}
+
+/* Abecedario */
+.abc{display:flex;gap:6px;overflow:hidden;padding-block:14px 6px;justify-content:center}
+.abc span{flex:0 0 auto;width:44px;height:50px;display:grid;place-items:center;font:800 1.15rem var(--body);color:#fff;border-radius:6px 6px 10px 10px;box-shadow:0 2px 0 rgba(0,0,0,.15)}
+.abc span:nth-child(6n+1){background:var(--rojo)} .abc span:nth-child(6n+2){background:var(--naranja)}
+.abc span:nth-child(6n+3){background:var(--amarillo);color:var(--tinta)} .abc span:nth-child(6n+4){background:var(--verde)}
+.abc span:nth-child(6n+5){background:var(--azul)} .abc span:nth-child(6n){background:var(--morado)}
+
+/* Tablero */
+.tablero{margin-top:18px;background:var(--tablero);border:14px solid var(--madera);border-radius:6px;
+  box-shadow:inset 0 0 60px rgba(0,0,0,.35),0 8px 0 var(--madera-osc),0 14px 24px rgba(0,0,0,.18);
+  padding:28px clamp(18px,4vw,48px) 22px;color:var(--tiza);position:relative;
+  background-image:radial-gradient(ellipse at 20% 30%,rgba(255,255,255,.06),transparent 60%),radial-gradient(ellipse at 80% 70%,rgba(255,255,255,.04),transparent 55%)}
+.fecha{font-family:var(--tiza-font);color:var(--tiza-suave);font-size:1.05rem}
+.tablero h1{font-family:var(--tiza-font);font-weight:400;font-size:clamp(2.6rem,8vw,4.8rem);letter-spacing:.01em;margin-top:6px;text-shadow:0 0 1px rgba(255,255,255,.6)}
+.tablero h1 .y{color:var(--amarillo)}
+.subraya{display:block;width:min(420px,80%);height:10px;margin-top:4px}
+.tablero p{font-family:var(--mano);font-size:1.3rem;max-width:56ch;margin:14px 0 0;color:var(--tiza)}
+.cuentas{display:flex;flex-wrap:wrap;gap:12px 36px;margin-top:20px;font-family:var(--tiza-font);font-size:1.25rem;color:var(--tiza-suave)}
+.cuentas b{font-weight:400;color:var(--tiza);font-size:1.7rem;margin-right:6px;font-variant-numeric:tabular-nums}
+.bandeja{position:absolute;left:8%;right:8%;bottom:-26px;height:12px;background:var(--madera-osc);border-radius:0 0 4px 4px}
+.bandeja i{position:absolute;top:-6px;height:7px;border-radius:3px}
+.bandeja i:nth-child(1){left:12%;width:34px;background:#fff}
+.bandeja i:nth-child(2){left:18%;width:22px;background:#f7d36b}
+.bandeja i:nth-child(3){left:72%;width:58px;height:14px;top:-12px;background:#5a4a3c;border-radius:3px;border-top:5px solid #ddd}
+
+/* Filtros: crayones */
+.filtros{margin-top:52px;display:flex;flex-wrap:wrap;gap:16px 36px;align-items:flex-start}
+.fgrupo{display:flex;flex-direction:column;gap:8px;min-width:0}
+.fgrupo>label,.fgrupo>span{font-family:var(--mano);font-size:1.25rem;color:var(--tinta)}
+.crayones{display:flex;flex-wrap:wrap;gap:8px}
+.crayon{--c:var(--azul);position:relative;border:0;background:var(--c);color:#fff;font-weight:800;font-size:.92rem;
+  padding:8px 16px 8px 14px;border-radius:4px 14px 14px 4px;cursor:pointer;box-shadow:inset 0 -3px 0 rgba(0,0,0,.18);
+  clip-path:polygon(0 0,88% 0,100% 50%,88% 100%,0 100%);padding-right:22px;opacity:.55;transition:opacity .15s,transform .15s}
+.crayon[aria-pressed="true"]{opacity:1;transform:translateY(-3px)}
+.crayon:hover{opacity:.85}
+.crayon.osc{color:var(--tinta)}
+.crayon:focus-visible,.btn:focus-visible,summary:focus-visible,#search:focus-visible{outline:3px solid var(--tinta);outline-offset:3px}
+#search{font:600 1rem var(--body);padding:9px 12px;border:2px solid var(--tinta);border-radius:8px;background:var(--papel);color:var(--tinta);width:min(260px,100%)}
+
+/* Cartelera de corcho */
+.cartelera{margin-top:22px;border:14px solid var(--madera);border-radius:6px;padding:30px clamp(14px,3vw,34px) 40px;
+  background-color:var(--corcho);
+  background-image:radial-gradient(var(--corcho-osc) 1.2px,transparent 1.6px),radial-gradient(rgba(255,255,255,.18) 1px,transparent 1.4px);
+  background-size:9px 9px,13px 13px;background-position:0 0,4px 6px;box-shadow:0 8px 0 var(--madera-osc),0 14px 24px rgba(0,0,0,.18)}
+.cartelera-titulo{display:inline-block;background:var(--amarillo);font-family:var(--mano);font-size:1.5rem;padding:4px 18px;transform:rotate(-1.5deg);box-shadow:0 3px 6px rgba(0,0,0,.2);margin-bottom:22px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:34px 26px}
+.hoja{background:var(--papel);position:relative;box-shadow:0 6px 14px rgba(0,0,0,.22);display:flex;flex-direction:column;min-width:0;transform:rotate(var(--r,0deg));transition:transform .2s}
+.hoja:nth-child(3n+1){--r:-1.2deg} .hoja:nth-child(3n+2){--r:.9deg} .hoja:nth-child(3n){--r:-.5deg}
+.hoja::before{content:"";position:absolute;top:-10px;left:50%;width:22px;height:22px;margin-left:-11px;border-radius:50%;
+  background:radial-gradient(circle at 35% 35%,#ff9a9e,var(--pin,var(--rojo)) 60%);box-shadow:0 3px 3px rgba(0,0,0,.35);z-index:2}
+.hoja:nth-child(3n+2)::before{--pin:var(--azul)} .hoja:nth-child(3n)::before{--pin:var(--verde)}
+.dibujo{height:150px;margin:18px 16px 0;position:relative;display:flex;align-items:flex-end;padding:14px;border:3px solid var(--tinta);border-radius:4px}
+.dibujo h3{font-family:var(--mano);font-weight:400;font-size:1.65rem;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.45)}
+.sello{position:absolute;top:-14px;right:-10px;font:800 .78rem var(--body);padding:6px 10px;border-radius:50%;width:74px;height:74px;display:grid;place-items:center;text-align:center;line-height:1.1;transform:rotate(12deg);border:3px dashed currentColor;background:var(--papel)}
+.sello.listo{color:var(--verde)} .sello.dev{color:var(--naranja)}
+.c-chui{background:linear-gradient(180deg,#7cb8d6 0%,#b8dcc0 55%,#3f8a55 56%,#2c6b40 100%)}
+.c-robo{background:radial-gradient(circle at 75% 30%,#59e0ff 0 14%,transparent 15%),linear-gradient(135deg,#1d2a5a,#3b2b7a 60%,#0f6d8c)}
+.c-chigui{background:linear-gradient(180deg,#f2c46b 0%,#e7a24a 45%,#8a9a3c 46%,#5e7a2e 100%)}
+.cuerpo{padding:16px 18px 20px;display:flex;flex-direction:column;gap:12px;flex:1;
+  background-image:repeating-linear-gradient(transparent 0 27px,var(--linea) 27px 28px);background-position:0 6px}
+.etiquetas{display:flex;flex-wrap:wrap;gap:6px}
+.et{font-size:.8rem;font-weight:800;padding:3px 9px;border-radius:999px;background:#e4f0fb;color:var(--tinta)}
+.et.area{background:#fde9c8} .et.edad{background:#e6f4e8}
+.desc{margin:0;color:var(--tinta)}
+dl{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;margin:0;font-size:.92rem}
+dt{color:var(--tinta-suave)} dd{margin:0;font-weight:700}
+details{border-top:2px dashed var(--linea);padding-top:8px}
+summary{cursor:pointer;font-family:var(--mano);font-size:1.2rem;color:var(--azul)}
+details ul{margin:6px 0 0;padding-left:20px;font-size:.94rem}
+.acciones{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto;padding-top:6px}
+.btn{font:800 .88rem var(--body);padding:9px 14px;border-radius:10px;text-decoration:none;border:2px solid var(--tinta);color:var(--tinta);background:var(--papel);box-shadow:0 3px 0 var(--tinta)}
+.btn.prim{background:var(--amarillo)}
+.btn[aria-disabled="true"]{border-style:dashed;box-shadow:none;color:var(--tinta-suave);border-color:var(--tinta-suave);cursor:not-allowed}
+.vacio{grid-column:1/-1;font-family:var(--mano);font-size:1.4rem;text-align:center;background:var(--papel);padding:24px;transform:rotate(-1deg)}
+
+/* Cuaderno */
+.cuaderno{margin:48px 0 0;background:var(--papel);box-shadow:0 6px 16px rgba(0,0,0,.15);position:relative;
+  padding:30px 22px 30px 74px;background-image:repeating-linear-gradient(transparent 0 31px,var(--linea) 31px 32px);background-position:0 18px}
+.cuaderno::before{content:"";position:absolute;top:0;bottom:0;left:56px;border-left:2px solid var(--margen)}
+.cuaderno::after{content:"";position:absolute;top:24px;bottom:24px;left:16px;width:18px;
+  background:radial-gradient(circle,var(--pared) 7px,transparent 8px) 0 0/18px 64px repeat-y}
+.cuaderno h2{font-family:var(--mano);font-weight:400;font-size:2rem;line-height:32px;color:var(--azul)}
+.cuaderno ol{margin:8px 0 0;padding-left:24px;font-family:var(--mano);font-size:1.25rem;line-height:32px}
+.cuaderno li span{color:var(--tinta-suave)}
+.cuaderno li b{font-weight:400;color:var(--tinta)}
+
+footer{margin-top:40px;padding-block:22px 28px;background:repeating-linear-gradient(90deg,var(--madera) 0 120px,#b37548 120px 122px,var(--madera) 122px 240px,#9c6136 240px 242px);
+  color:#fff7ec;font-family:var(--mano);font-size:1.15rem;text-align:center}
+@media (max-width:560px){.tablero{border-width:10px}.cartelera{border-width:10px}.cuaderno{padding-left:58px}.cuaderno::before{left:44px}.cuaderno::after{left:10px}}
+@media (prefers-reduced-motion:no-preference){.hoja:hover{transform:rotate(0) translateY(-3px)}}
+@media (prefers-reduced-motion:reduce){.hoja,.crayon{transition:none}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="abc" aria-hidden="true" id="abc"></div>
+
+  <header class="tablero">
+    <div class="fecha" id="fecha">Bienvenidos, profes</div>
+    <h1>Patio de <span class="y">Juegos</span></h1>
+    <svg class="subraya" viewBox="0 0 420 10" preserveAspectRatio="none" aria-hidden="true"><path d="M2 6 Q100 2 210 5 T418 4" stroke="var(--amarillo)" stroke-width="3" fill="none" stroke-linecap="round"/></svg>
+    <p>Juegos educativos para usar en el salón, sin depender de internet. Escoja el grado y la materia, lea la guía y descargue el juego.</p>
+    <div class="cuentas">
+      <div><b id="s-total">3</b>juegos en la cartelera</div>
+      <div><b id="s-ready">2</b>listos para clase</div>
+      <div><b>T – 5°</b>grados</div>
+    </div>
+    <div class="bandeja" aria-hidden="true"><i></i><i></i><i></i></div>
+  </header>
+
+  <section class="filtros" aria-label="Filtrar juegos">
+    <div class="fgrupo"><span>Grado</span><div class="crayones" id="f-grado"></div></div>
+    <div class="fgrupo"><span>Materia</span><div class="crayones" id="f-area"></div></div>
+    <div class="fgrupo"><label for="search">Buscar</label><input id="search" type="search" placeholder="Nombre o tema…"></div>
+  </section>
+
+  <section class="cartelera">
+    <div class="cartelera-titulo">Nuestros juegos</div>
+    <div class="grid" id="grid" aria-live="polite"></div>
+  </section>
+
+  <section class="cuaderno">
+    <h2>Tarea del profe: cómo usar un juego en clase</h2>
+    <ol>
+      <li><b>Descargue antes de la clase.</b> <span>Con señal se instala; después funciona sin internet.</span></li>
+      <li><b>Juegue usted primero.</b> <span>Recorra la primera misión para conocer las instrucciones.</span></li>
+      <li><b>Escoja la versión del grado.</b> <span>Algunos juegos traen preguntas distintas por grado.</span></li>
+      <li><b>Cierre conversando.</b> <span>Use las preguntas de la guía para unir el juego con el tema.</span></li>
+    </ol>
+  </section>
+</div>
+
+<footer>Patio de Juegos · Juegos educativos para escuelas rurales de Colombia</footer>
+
+<script>
+/* ===== Catálogo: para agregar un juego, copie un bloque y cambie los datos ===== */
+const JUEGOS = [
+  {
+    id:"chui", titulo:"Chuí y el Misterio de la Patillera", portada:"c-chui", estado:"listo",
+    grados:["2°","4°"], areas:["Ciencias naturales","Lenguaje"], edad:"7 a 12 años",
+    desc:"Una aventura de detectives: 12 misiones con huellas, adivinanzas, sopa de letras e historietas, narradas con voz.",
+    ficha:{"Contenido":"3 aventuras · 12 misiones","Versiones":"2° y 4° grado","Duración":"20–30 min por misión"},
+    guia:["Juegue una aventura (4 misiones) por semana.","En la Misión 6, pida a los niños dibujar la huella y el hábitat del animal.","Después de la historieta de Leo y Sofía, pregunte qué pistas usaron para resolver la adivinanza."],
+    enlaces:{android:"", windows:"", web:""}
+  },
+  {
+    id:"robosuma", titulo:"RoboSuma", portada:"c-robo", estado:"listo",
+    grados:["Transición","1°"], areas:["Matemáticas"], edad:"5 a 7 años",
+    desc:"Los niños ayudan a robots a armar, cargar y reparar resolviendo sumas con arrastrar y completar.",
+    ficha:{"Tema":"Suma","Actividades":"Arrastrar, completar la suma","Funciona en":"Navegador, sin internet tras abrirlo"},
+    guia:["Use material concreto (tapas, semillas) antes de jugar.","Pida que digan la suma en voz alta mientras la resuelven.","Formen parejas: uno juega y el otro comprueba con los dedos."],
+    enlaces:{android:"", windows:"", web:""}
+  },
+  {
+    id:"chigui", titulo:"Chigüi: La Gran Aventura del Llano", portada:"c-chigui", estado:"desarrollo",
+    grados:["Por definir"], areas:["Por definir"], edad:"Por definir",
+    desc:"Un nuevo recorrido con el chigüiro como guía. Pronto disponible.",
+    ficha:{"Estado":"En desarrollo"},
+    guia:[], enlaces:{}
+  }
+];
+const GRADOS=["Todos","Transición","1°","2°","3°","4°","5°"];
+const AREAS=["Todas","Matemáticas","Lenguaje","Ciencias naturales"];
+const COLORES=["var(--rojo)","var(--naranja)","var(--amarillo)","var(--verde)","var(--azul)","var(--morado)","var(--rojo)"];
+const PLAT={android:"Android",windows:"Windows",web:"Jugar en el navegador"};
+
+document.getElementById("abc").innerHTML="ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split("").map(l=>`<span>${l}${l.toLowerCase()}</span>`).join("");
+try{
+  const d=new Date().toLocaleDateString("es-CO",{weekday:"long",day:"numeric",month:"long"});
+  document.getElementById("fecha").textContent="Hoy es "+d;
+}catch(e){}
+
+let fGrado="Todos", fArea="Todas", q="";
+try{const s=JSON.parse(localStorage.getItem("filtros")||"{}");fGrado=s.g||fGrado;fArea=s.a||fArea}catch(e){}
+function save(){try{localStorage.setItem("filtros",JSON.stringify({g:fGrado,a:fArea}))}catch(e){}}
+
+function crayones(el,list,cur,set){
+  el.innerHTML="";
+  list.forEach((v,i)=>{const b=document.createElement("button");b.className="crayon"+(COLORES[i%COLORES.length]==="var(--amarillo)"?" osc":"");
+    b.style.setProperty("--c",COLORES[i%COLORES.length]);b.textContent=v;b.setAttribute("aria-pressed",v===cur);
+    b.onclick=()=>{set(v);save();draw()};el.appendChild(b)});
+}
+function card(j){
+  const ficha=Object.entries(j.ficha).map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join("");
+  const guia=j.guia.length?`<details><summary>Guía para el profe</summary><ul>${j.guia.map(g=>`<li>${g}</li>`).join("")}</ul></details>`:"";
+  let acc="";
+  if(j.estado==="listo"){
+    acc=Object.keys(PLAT).map((p,i)=>{const url=j.enlaces[p];
+      return url?`<a class="btn ${i===0?"prim":""}" href="${url}" target="_blank" rel="noopener">${PLAT[p]}</a>`
+                :`<span class="btn" aria-disabled="true" title="Enlace pendiente">${PLAT[p]} · pronto</span>`}).join("");
+  }
+  const listo=j.estado==="listo";
+  return `<article class="hoja">
+    <div class="dibujo ${j.portada}"><span class="sello ${listo?"listo":"dev"}">${listo?"¡Listo para clase!":"En camino"}</span><h3>${j.titulo}</h3></div>
+    <div class="cuerpo">
+      <div class="etiquetas">${j.grados.map(g=>`<span class="et">${g}</span>`).join("")}${j.areas.map(a=>`<span class="et area">${a}</span>`).join("")}<span class="et edad">${j.edad}</span></div>
+      <p class="desc">${j.desc}</p>
+      <dl>${ficha}</dl>
+      ${guia}
+      <div class="acciones">${acc}</div>
+    </div></article>`;
+}
+function draw(){
+  crayones(document.getElementById("f-grado"),GRADOS,fGrado,v=>fGrado=v);
+  crayones(document.getElementById("f-area"),AREAS,fArea,v=>fArea=v);
+  const lista=JUEGOS.filter(j=>(fGrado==="Todos"||j.grados.includes(fGrado))
+    &&(fArea==="Todas"||j.areas.includes(fArea))
+    &&(!q||(j.titulo+" "+j.desc+" "+j.areas.join(" ")).toLowerCase().includes(q)));
+  document.getElementById("grid").innerHTML=lista.length?lista.map(card).join("")
+    :`<p class="vacio">Todavía no hay juegos para ese grado y materia.</p>`;
+  document.getElementById("s-total").textContent=JUEGOS.length;
+  document.getElementById("s-ready").textContent=JUEGOS.filter(j=>j.estado==="listo").length;
+}
+document.getElementById("search").addEventListener("input",e=>{q=e.target.value.trim().toLowerCase();draw()});
+draw();
+</script>
+</body>
+</html>
