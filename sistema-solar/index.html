@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>El Sistema Solar</title>
+<style>
+  :root{
+    --bg:#0b1030; --panel:#151c4a; --panel2:#1d2660; --txt:#f3f5ff; --muted:#b9c0ea;
+    --sol:#ffc93c; --ok:#3ddc84; --bad:#ff6b6b; --acc:#7ad7ff; --pink:#ff7ad9;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    font-family:"Trebuchet MS","Segoe UI",Verdana,system-ui,sans-serif;
+    color:var(--txt); background:var(--bg); min-height:100vh; font-size:18px; line-height:1.45;
+    background-image:
+      radial-gradient(1.5px 1.5px at 20px 30px,#fff,transparent),
+      radial-gradient(1px 1px at 120px 80px,#cfe,transparent),
+      radial-gradient(1.5px 1.5px at 200px 150px,#fff,transparent),
+      radial-gradient(1px 1px at 300px 40px,#ffd,transparent),
+      radial-gradient(1px 1px at 360px 190px,#fff,transparent),
+      radial-gradient(1.2px 1.2px at 80px 200px,#fff,transparent),
+      radial-gradient(ellipse at 80% -10%,#2b2f7a 0%,transparent 55%),
+      radial-gradient(ellipse at -10% 110%,#3a1d63 0%,transparent 55%);
+    background-size:400px 240px,400px 240px,400px 240px,400px 240px,400px 240px,400px 240px,100% 100%,100% 100%;
+    background-attachment:fixed;
+  }
+  header{
+    position:sticky; top:0; z-index:10; background:rgba(11,16,48,.92); backdrop-filter:blur(6px);
+    border-bottom:1px solid #2a3480; padding:10px 12px 8px;
+  }
+  .brand{display:flex; align-items:center; gap:10px; justify-content:center; margin-bottom:8px}
+  .brand h1{font-size:1.35rem; margin:0; letter-spacing:.5px}
+  nav{display:flex; gap:6px; justify-content:center; flex-wrap:wrap}
+  nav button{
+    background:var(--panel2); color:var(--txt); border:2px solid transparent; border-radius:999px;
+    padding:8px 14px; font-size:.95rem; font-family:inherit; cursor:pointer; font-weight:bold;
+  }
+  nav button.on{border-color:var(--sol); background:#2c3378; color:var(--sol)}
+  main{max-width:900px; margin:0 auto; padding:16px 14px 60px}
+  section{display:none; animation:fade .35s ease}
+  section.on{display:block}
+  @keyframes fade{from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none}}
+  h2{color:var(--sol); margin:.3em 0 .5em; font-size:1.5rem}
+  h3{color:var(--acc); margin:.6em 0 .4em}
+  .card{background:var(--panel); border:1px solid #2a3480; border-radius:18px; padding:16px; margin:14px 0}
+  .big-btn{
+    display:inline-flex; align-items:center; gap:8px; background:var(--sol); color:#2a1a00;
+    border:none; border-radius:14px; padding:12px 20px; font-size:1.05rem; font-weight:bold;
+    font-family:inherit; cursor:pointer; box-shadow:0 4px 0 #c7930f; margin:4px 4px 4px 0;
+  }
+  .big-btn:active{transform:translateY(3px); box-shadow:0 1px 0 #c7930f}
+  .big-btn.sec{background:var(--acc); box-shadow:0 4px 0 #3a9bc4; color:#00243a}
+  .big-btn.ghost{background:var(--panel2); color:var(--txt); box-shadow:0 4px 0 #0e1440}
+  .voz{background:none; border:2px solid var(--acc); color:var(--acc); border-radius:999px; padding:4px 12px;
+       font-family:inherit; font-size:.9rem; cursor:pointer; font-weight:bold}
+  .hero{text-align:center}
+  .hero svg{max-width:100%}
+  .ficha{display:grid; grid-template-columns:auto 1fr; gap:6px 12px; font-size:.95rem}
+  .ficha b{color:var(--pink)}
+  details summary{cursor:pointer; color:var(--muted); font-weight:bold}
+  .mnemo{background:linear-gradient(90deg,#3b2a7a,#1f4a7a); border-radius:14px; padding:12px; text-align:center; font-size:1.1rem}
+  .mnemo span{color:var(--sol); font-weight:bold; font-size:1.3rem}
+
+  /* Fila de planetas */
+  .orbita{display:flex; align-items:center; gap:10px; overflow-x:auto; padding:14px 6px 10px; scroll-snap-type:x proximity}
+  .orbita .pl{flex:0 0 auto; text-align:center; cursor:pointer; scroll-snap-align:center; border-radius:14px; padding:6px; border:2px solid transparent; background:none; color:var(--txt); font-family:inherit}
+  .orbita .pl.sel{border-color:var(--sol); background:rgba(255,201,60,.08)}
+  .orbita .pl small{display:block; font-size:.8rem; color:var(--muted)}
+  .orbita .pl .n{font-weight:bold; font-size:.9rem}
+  .detalle{display:grid; grid-template-columns:160px 1fr; gap:16px; align-items:start}
+  .detalle .grande{text-align:center}
+  .chips{display:flex; flex-wrap:wrap; gap:6px; margin:6px 0 10px}
+  .chip{background:var(--panel2); border-radius:999px; padding:4px 10px; font-size:.85rem}
+  .detalle ul{margin:0; padding-left:20px}
+  .detalle li{margin:4px 0}
+  @media (max-width:560px){ .detalle{grid-template-columns:1fr} }
+
+  /* Actividades */
+  .tabs-act{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:6px}
+  .tabs-act button{flex:1 1 150px; background:var(--panel2); border:2px solid transparent; color:var(--txt); border-radius:14px; padding:10px; font-family:inherit; font-size:.95rem; font-weight:bold; cursor:pointer}
+  .tabs-act button.on{border-color:var(--acc); color:var(--acc)}
+  .slots{display:grid; grid-template-columns:repeat(8,1fr); gap:6px; margin:12px 0}
+  .slot{aspect-ratio:1/1.25; border:2px dashed #3d4aa0; border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:.7rem; color:var(--muted); padding:2px; text-align:center}
+  .slot.lleno{border-style:solid; border-color:var(--ok); color:var(--txt); background:rgba(61,220,132,.08)}
+  .slot .num{font-size:1rem; font-weight:bold}
+  @media (max-width:560px){ .slots{grid-template-columns:repeat(4,1fr)} }
+  .banco{display:flex; flex-wrap:wrap; gap:8px; justify-content:center}
+  .banco button{background:var(--panel2); border:2px solid #3d4aa0; border-radius:14px; color:var(--txt); padding:6px 8px; font-family:inherit; cursor:pointer; text-align:center; min-width:84px}
+  .banco button:disabled{opacity:.25; cursor:default}
+  .banco button .n{display:block; font-size:.85rem; font-weight:bold}
+  .feedback{border-radius:14px; padding:12px 14px; margin:12px 0; display:none; font-size:1rem}
+  .feedback.ok{display:block; background:rgba(61,220,132,.15); border:2px solid var(--ok)}
+  .feedback.bad{display:block; background:rgba(255,107,107,.13); border:2px solid var(--bad)}
+  .feedback b.t{display:block; font-size:1.1rem; margin-bottom:4px}
+  .opciones{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px}
+  .opciones button{background:var(--panel2); border:2px solid #3d4aa0; color:var(--txt); border-radius:14px; padding:12px; font-family:inherit; font-size:1rem; cursor:pointer; display:flex; align-items:center; gap:10px; font-weight:bold; text-align:left}
+  .opciones button.mal{border-color:var(--bad); opacity:.55}
+  .opciones button.bien{border-color:var(--ok); background:rgba(61,220,132,.15)}
+  .opciones button.marcada{border-color:var(--sol); background:rgba(255,201,60,.12)}
+  @media (max-width:480px){ .opciones{grid-template-columns:1fr} }
+  .pista{font-size:1.15rem; background:#0f1540; border-left:5px solid var(--pink); padding:12px; border-radius:10px}
+  .progreso{height:12px; background:#0f1540; border-radius:999px; overflow:hidden; margin:8px 0}
+  .progreso div{height:100%; background:linear-gradient(90deg,var(--acc),var(--ok)); width:0; transition:width .4s}
+  .clasif{display:flex; gap:12px; justify-content:center; margin-top:12px; flex-wrap:wrap}
+  .clasif button{flex:1 1 180px; padding:16px; border-radius:16px; border:none; font-family:inherit; font-size:1.1rem; font-weight:bold; cursor:pointer}
+  .clasif .roc{background:#c9773f; color:#fff; box-shadow:0 4px 0 #8a4c22}
+  .clasif .gas{background:#4a7fd9; color:#fff; box-shadow:0 4px 0 #2b5097}
+  .centro{text-align:center}
+  .estrellas{font-size:2.4rem; letter-spacing:4px}
+  .res-item{border-bottom:1px solid #2a3480; padding:10px 0}
+  .res-item:last-child{border:none}
+  .res-item .ok{color:var(--ok); font-weight:bold}
+  .res-item .bad{color:var(--bad); font-weight:bold}
+  input[type=text]{font-family:inherit; font-size:1.05rem; padding:10px 12px; border-radius:12px; border:2px solid #3d4aa0; background:#0f1540; color:var(--txt); width:100%; max-width:320px}
+  .contador{color:var(--muted); font-size:.95rem}
+  footer{text-align:center; color:var(--muted); font-size:.8rem; padding:20px}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><span id="logoSol"></span><h1>El Sistema Solar</h1></div>
+  <nav>
+    <button data-s="inicio" class="on">🏠 Inicio</button>
+    <button data-s="aprende">🪐 Aprende</button>
+    <button data-s="actividades">🎮 Actividades</button>
+    <button data-s="evaluacion">📝 Evaluación</button>
+  </nav>
+</header>
+
+<main>
+<!-- ============ INICIO ============ -->
+<section id="inicio" class="on">
+  <div class="card hero">
+    <div id="heroSvg"></div>
+    <h2>¡Bienvenido, explorador del espacio! 🚀</h2>
+    <p>Hoy vamos a viajar por el <b>Sistema Solar</b>: conoceremos al Sol y a los <b>8 planetas</b> que giran a su alrededor, cómo son y en qué orden están.</p>
+    <button class="voz" onclick="hablar(document.getElementById('txtIntro').innerText)">🔊 Escuchar</button>
+  </div>
+
+  <div class="card" id="txtIntro">
+    <h3>¿Qué es el Sistema Solar?</h3>
+    <p>El Sistema Solar es nuestra familia en el espacio. En el centro está el <b>Sol</b>, que es una <b>estrella</b>: una enorme bola de gases muy caliente que nos da luz y calor.</p>
+    <p>Alrededor del Sol giran <b>8 planetas</b>. Cada uno sigue su propio camino, llamado <b>órbita</b>. Nosotros vivimos en uno de ellos: ¡la Tierra!</p>
+    <p>¿Por qué es importante conocerlo? Porque nos ayuda a entender por qué hay día y noche, por qué existen los años, y lo especial que es nuestro planeta, el único donde sabemos que hay vida.</p>
+  </div>
+
+  <div class="card">
+    <h3>¿Qué vas a hacer?</h3>
+    <p>1️⃣ <b>Aprende:</b> mira cada planeta y descubre sus características.<br>
+       2️⃣ <b>Actividades:</b> practica ordenando y adivinando planetas. Si te equivocas, te explicamos por qué y lo vuelves a intentar.<br>
+       3️⃣ <b>Evaluación:</b> responde 10 preguntas y al final recibes tu resultado.</p>
+    <button class="big-btn" onclick="ir('aprende')">¡Empezar el viaje! 🚀</button>
+  </div>
+
+  <div class="card">
+    <details>
+      <summary>👩‍🏫 Ficha para el docente</summary>
+      <div class="ficha" style="margin-top:10px">
+        <b>Área:</b><span>Ciencias Naturales</span>
+        <b>Grado:</b><span>Básica Primaria</span>
+        <b>Tema:</b><span>El Sistema Solar</span>
+        <b>Tipo de RED:</b><span>Interactivo – Textual</span>
+        <b>Objetivo:</b><span>Identificar los planetas que conforman el Sistema Solar, reconocer sus principales características y comprender su ubicación con respecto al Sol, desarrollando la curiosidad y el interés por el universo.</span>
+        <b>Contenido:</b><span>Importancia de conocer el Sistema Solar, imágenes y características de cada planeta.</span>
+        <b>Actividad:</b><span>Tres actividades que validan las respuestas correctas y explican las incorrectas para que el estudiante entienda su error y lo intente de nuevo.</span>
+        <b>Evaluación:</b><span>10 preguntas con retroalimentación final del tema.</span>
+      </div>
+      <p class="contador" style="margin-top:10px">Funciona sin internet una vez descargado. La voz depende del navegador del dispositivo.</p>
+    </details>
+  </div>
+</section>
+
+<!-- ============ APRENDE ============ -->
+<section id="aprende">
+  <h2>🪐 Conoce los planetas</h2>
+  <div class="card">
+    <p>Los planetas están ordenados desde el más <b>cercano</b> al Sol hasta el más <b>lejano</b>. Toca cada uno para conocerlo. Desliza hacia el lado para ver todos ➡️</p>
+    <div class="orbita" id="orbita"></div>
+  </div>
+
+  <div class="card" id="detalle"></div>
+
+  <div class="card">
+    <h3>🧠 Truco para recordar el orden</h3>
+    <div class="mnemo">
+      "<span>M</span>i <span>V</span>iejo <span>T</span>ío <span>M</span>arcos <span>J</span>uega <span>S</span>iempre <span>U</span>na <span>N</span>ota"
+      <div style="font-size:.9rem; color:var(--muted); margin-top:6px">Mercurio · Venus · Tierra · Marte · Júpiter · Saturno · Urano · Neptuno</div>
+    </div>
+    <p style="margin-top:12px"><button class="voz" onclick="hablar('Mi Viejo Tío Marcos Juega Siempre Una Nota. Mercurio, Venus, Tierra, Marte, Júpiter, Saturno, Urano y Neptuno.')">🔊 Escuchar</button></p>
+  </div>
+
+  <div class="card">
+    <h3>🪨 Planetas rocosos y 🌫️ planetas gaseosos</h3>
+    <p><b>Rocosos (interiores):</b> Mercurio, Venus, Tierra y Marte. Son pequeños, tienen suelo firme y están más cerca del Sol.</p>
+    <p><b>Gigantes gaseosos (exteriores):</b> Júpiter, Saturno, Urano y Neptuno. Son enormes, están hechos sobre todo de gases y hielo, no tienen suelo donde pararse y todos tienen anillos (¡aunque los de Saturno son los más visibles!).</p>
+    <p><b>¿Y Plutón?</b> Antes se contaba como planeta, pero desde el año 2006 los científicos lo llaman <b>planeta enano</b> porque es muy pequeño. Por eso hoy decimos que hay <b>8 planetas</b>.</p>
+    <button class="big-btn" onclick="ir('actividades')">¡Ya estoy listo para practicar! 🎮</button>
+  </div>
+</section>
+
+<!-- ============ ACTIVIDADES ============ -->
+<section id="actividades">
+  <h2>🎮 Practica lo aprendido</h2>
+  <div class="tabs-act">
+    <button data-a="orden" class="on">1. Ordena los planetas</button>
+    <button data-a="quien">2. ¿Quién soy?</button>
+    <button data-a="clasif">3. ¿Rocoso o gaseoso?</button>
+  </div>
+
+  <div class="card act" id="act-orden">
+    <h3>Ordena los planetas desde el Sol ☀️</h3>
+    <p>Toca los planetas en orden: primero el más <b>cercano</b> al Sol, al final el más <b>lejano</b>.</p>
+    <div class="slots" id="slots"></div>
+    <div class="feedback" id="fbOrden"></div>
+    <div class="banco" id="banco"></div>
+    <p class="contador" id="errOrden"></p>
+  </div>
+
+  <div class="card act" id="act-quien" style="display:none">
+    <h3>¿Quién soy? 🕵️</h3>
+    <div class="progreso"><div id="barQuien"></div></div>
+    <p class="contador" id="numQuien"></p>
+    <div class="pista" id="pistaQuien"></div>
+    <p><button class="voz" onclick="hablar(document.getElementById('pistaQuien').innerText)">🔊 Escuchar pista</button></p>
+    <div class="opciones" id="opsQuien"></div>
+    <div class="feedback" id="fbQuien"></div>
+    <div id="sigQuien"></div>
+  </div>
+
+  <div class="card act" id="act-clasif" style="display:none">
+    <h3>¿Rocoso o gaseoso? 🪨🌫️</h3>
+    <div class="progreso"><div id="barClasif"></div></div>
+    <div class="centro" id="planClasif"></div>
+    <div class="clasif" id="btnsClasif">
+      <button class="roc" onclick="clasificar('rocoso')">🪨 Rocoso</button>
+      <button class="gas" onclick="clasificar('gaseoso')">🌫️ Gaseoso</button>
+    </div>
+    <div class="feedback" id="fbClasif"></div>
+    <div id="sigClasif" class="centro"></div>
+  </div>
+</section>
+
+<!-- ============ EVALUACIÓN ============ -->
+<section id="evaluacion">
+  <h2>📝 Evaluación</h2>
+  <div class="card" id="evInicio">
+    <p>Responde 10 preguntas sobre el Sistema Solar. Esta vez <b>no verás si acertaste hasta el final</b>, así que piensa bien cada respuesta. 🤔</p>
+    <p><label>Escribe tu nombre:<br><input type="text" id="nombre" placeholder="Tu nombre" maxlength="30"></label></p>
+    <button class="big-btn" onclick="empezarEval()">Comenzar evaluación ✏️</button>
+  </div>
+  <div class="card" id="evPregunta" style="display:none">
+    <div class="progreso"><div id="barEval"></div></div>
+    <p class="contador" id="numEval"></p>
+    <h3 id="txtEval" style="color:var(--txt)"></h3>
+    <p><button class="voz" onclick="hablarPregunta()">🔊 Escuchar</button></p>
+    <div class="opciones" id="opsEval"></div>
+    <p style="margin-top:14px"><button class="big-btn" id="btnSigEval" onclick="siguienteEval()" disabled style="opacity:.5">Siguiente ➡️</button></p>
+  </div>
+  <div id="evResultado" style="display:none"></div>
+</section>
+</main>
+<footer>Recurso Educativo Digital · Ciencias Naturales · Básica Primaria</footer>
+
+<script>
+/* ================= DATOS ================= */
+const PLANETAS = [
+  {id:'mercurio', nombre:'Mercurio', pos:1, tipo:'rocoso', r:14, c1:'#e3ddd3', c2:'#7d7770', lunas:'0', anio:'88 días', tam:'El más pequeño',
+   frase:'Soy el planeta más cercano al Sol y el más pequeño de todos.',
+   datos:['Es el planeta más cercano al Sol.','Es el más pequeño del Sistema Solar.','No tiene lunas.','Su superficie está llena de cráteres, como nuestra Luna.','De día hace muchísimo calor y de noche muchísimo frío.']},
+  {id:'venus', nombre:'Venus', pos:2, tipo:'rocoso', r:20, c1:'#ffe3a3', c2:'#c98a3a', lunas:'0', anio:'225 días', tam:'Parecido a la Tierra',
+   frase:'Soy el planeta más caliente, cubierto de nubes muy espesas.',
+   datos:['Es el planeta más caliente, ¡aunque no es el más cercano al Sol!','Sus nubes espesas atrapan el calor como una cobija.','Gira al revés que casi todos los planetas.','Se ve muy brillante en el cielo al amanecer o al atardecer: le dicen "lucero".','No tiene lunas.']},
+  {id:'tierra', nombre:'Tierra', pos:3, tipo:'rocoso', r:21, c1:'#6fc3ff', c2:'#1a4fa0', lunas:'1', anio:'365 días', tam:'Mediano',
+   frase:'Soy el tercer planeta y el único donde sabemos que hay vida.',
+   datos:['Es nuestro hogar: el único planeta donde sabemos que hay vida.','Tiene agua líquida en ríos, lagos y océanos.','Tiene una luna: la Luna.','Tarda 365 días (un año) en darle la vuelta al Sol.','Tarda 24 horas en girar sobre sí misma: eso hace el día y la noche.']},
+  {id:'marte', nombre:'Marte', pos:4, tipo:'rocoso', r:17, c1:'#ff9a6a', c2:'#a3361b', lunas:'2', anio:'687 días', tam:'Mitad de la Tierra',
+   frase:'Me llaman el planeta rojo por el color de mi suelo.',
+   datos:['Le dicen el "planeta rojo" por el color de su suelo, que tiene óxido (como el hierro oxidado).','Tiene 2 lunas pequeñas: Fobos y Deimos.','Allí está el volcán más grande del Sistema Solar: el monte Olimpo.','Los científicos envían robots para explorarlo.']},
+  {id:'jupiter', nombre:'Júpiter', pos:5, tipo:'gaseoso', r:46, c1:'#f3d2a8', c2:'#a86a3c', lunas:'Más de 90', anio:'12 años', tam:'El más grande',
+   frase:'Soy el planeta más grande y tengo una gran mancha roja que es una tormenta.',
+   datos:['Es el planeta más grande: ¡dentro cabrían más de mil Tierras!','Es un gigante gaseoso: no tiene suelo firme.','Tiene la Gran Mancha Roja, una tormenta más grande que la Tierra.','Tiene muchísimas lunas, más de 90.']},
+  {id:'saturno', nombre:'Saturno', pos:6, tipo:'gaseoso', r:38, c1:'#fbe7b0', c2:'#b8904a', lunas:'Más de 140', anio:'29 años', tam:'El segundo más grande',
+   frase:'Soy famoso por mis grandes y hermosos anillos.',
+   datos:['Es famoso por sus anillos, hechos de pedazos de hielo y roca.','Es el segundo planeta más grande.','Es un gigante gaseoso, tan liviano que flotaría en una piscina gigante.','Es el planeta con más lunas conocidas.']},
+  {id:'urano', nombre:'Urano', pos:7, tipo:'gaseoso', r:28, c1:'#c9fbff', c2:'#4fb4c4', lunas:'27', anio:'84 años', tam:'Grande',
+   frase:'Giro acostado, de lado, y soy de color azul verdoso.',
+   datos:['Gira "acostado", de lado, como una pelota que rueda.','Su color es azul verdoso por un gas llamado metano.','Es un gigante helado: muy, muy frío.','Tiene anillos delgados y oscuros.']},
+  {id:'neptuno', nombre:'Neptuno', pos:8, tipo:'gaseoso', r:27, c1:'#7fa8ff', c2:'#1d3a9a', lunas:'16', anio:'165 años', tam:'Grande',
+   frase:'Soy el planeta más lejano del Sol, de color azul intenso.',
+   datos:['Es el planeta más lejano del Sol.','Es de color azul intenso.','Tiene los vientos más fuertes del Sistema Solar.','Es tan lejano que tarda 165 años en darle una vuelta al Sol.']}
+];
+const P = Object.fromEntries(PLANETAS.map(p=>[p.id,p]));
+
+/* ================= DIBUJOS SVG ================= */
+let gid=0;
+function planetaSVG(p, size){
+  const id='g'+(gid++);
+  const s=size, c=s/2, rad=s*0.42;
+  let extra='', anilloAtras='', anilloFrente='';
+  const clip=`<clipPath id="c${id}"><circle cx="${c}" cy="${c}" r="${rad}"/></clipPath>`;
+  if(p.id==='jupiter'){
+    const b=[[-.55,.10,'#c98a55'],[-.25,.12,'#e9c49a'],[.05,.14,'#b8743f'],[.35,.09,'#d9a676'],[.6,.1,'#c08050']];
+    extra=`<g clip-path="url(#c${id})" opacity=".85">`+b.map(([y,h,col])=>`<rect x="0" y="${c+y*rad}" width="${s}" height="${h*rad*2}" fill="${col}"/>`).join('')
+      +`<ellipse cx="${c+rad*.35}" cy="${c+rad*.32}" rx="${rad*.2}" ry="${rad*.11}" fill="#c0462e"/></g>`;
+  }
+  if(p.id==='saturno'){
+    extra=`<g clip-path="url(#c${id})" opacity=".55"><rect x="0" y="${c-rad*.4}" width="${s}" height="${rad*.2}" fill="#d6b16a"/><rect x="0" y="${c+rad*.25}" width="${s}" height="${rad*.18}" fill="#caa25d"/></g>`;
+    anilloAtras=`<path d="M ${c-rad*1.7} ${c} A ${rad*1.7} ${rad*.45} 0 0 1 ${c+rad*1.7} ${c}" fill="none" stroke="#e7cf93" stroke-width="${rad*.22}" opacity=".7" transform="rotate(-18 ${c} ${c})"/>`;
+    anilloFrente=`<path d="M ${c+rad*1.7} ${c} A ${rad*1.7} ${rad*.45} 0 0 1 ${c-rad*1.7} ${c}" fill="none" stroke="#f3dea6" stroke-width="${rad*.22}" transform="rotate(-18 ${c} ${c})"/>`;
+  }
+  if(p.id==='urano'){
+    anilloFrente=`<ellipse cx="${c}" cy="${c}" rx="${rad*.35}" ry="${rad*1.35}" fill="none" stroke="#bfe9ef" stroke-width="1.5" opacity=".6" transform="rotate(10 ${c} ${c})"/>`;
+  }
+  if(p.id==='tierra'){
+    extra=`<g clip-path="url(#c${id})" fill="#3fae4f"><path d="M${c-rad*.6} ${c-rad*.5} q${rad*.4} -${rad*.3} ${rad*.6} ${rad*.05} q-${rad*.1} ${rad*.35} ${rad*.25} ${rad*.6} q-${rad*.3} ${rad*.25} -${rad*.55} -${rad*.05} z"/><path d="M${c+rad*.15} ${c-rad*.2} q${rad*.45} -${rad*.15} ${rad*.55} ${rad*.25} q-${rad*.05} ${rad*.5} -${rad*.35} ${rad*.65} q-${rad*.3} -${rad*.3} -${rad*.2} -${rad*.9} z"/></g>
+      <g clip-path="url(#c${id})" fill="#fff" opacity=".55"><ellipse cx="${c-rad*.1}" cy="${c+rad*.15}" rx="${rad*.5}" ry="${rad*.07}"/><ellipse cx="${c+rad*.3}" cy="${c-rad*.55}" rx="${rad*.35}" ry="${rad*.06}"/></g>`;
+  }
+  if(p.id==='marte'){
+    extra=`<g clip-path="url(#c${id})" fill="#7a2410" opacity=".45"><ellipse cx="${c-rad*.3}" cy="${c+rad*.1}" rx="${rad*.35}" ry="${rad*.15}"/><ellipse cx="${c+rad*.35}" cy="${c-rad*.3}" rx="${rad*.2}" ry="${rad*.1}"/></g><ellipse cx="${c}" cy="${c-rad*.88}" rx="${rad*.3}" ry="${rad*.1}" fill="#fff" opacity=".8"/>`;
+  }
+  if(p.id==='mercurio'){
+    extra=`<g fill="#6b665f" opacity=".5"><circle cx="${c-rad*.3}" cy="${c-rad*.2}" r="${rad*.14}"/><circle cx="${c+rad*.3}" cy="${c+rad*.25}" r="${rad*.1}"/><circle cx="${c+rad*.1}" cy="${c-rad*.45}" r="${rad*.07}"/><circle cx="${c-rad*.1}" cy="${c+rad*.45}" r="${rad*.08}"/></g>`;
+  }
+  if(p.id==='venus'){
+    extra=`<g clip-path="url(#c${id})" fill="none" stroke="#fff3cf" stroke-width="${rad*.08}" opacity=".5"><path d="M${c-rad} ${c-rad*.3} q${rad*.5} -${rad*.2} ${rad} 0 t${rad} 0"/><path d="M${c-rad} ${c+rad*.25} q${rad*.5} -${rad*.2} ${rad} 0 t${rad} 0"/></g>`;
+  }
+  if(p.id==='neptuno'){
+    extra=`<g clip-path="url(#c${id})" opacity=".4"><rect x="0" y="${c+rad*.2}" width="${s}" height="${rad*.12}" fill="#9ec0ff"/><ellipse cx="${c-rad*.25}" cy="${c-rad*.2}" rx="${rad*.18}" ry="${rad*.09}" fill="#0b1c5a"/></g>`;
+  }
+  return `<svg viewBox="0 0 ${s} ${s}" width="${s}" height="${s}" role="img" aria-label="${p.nombre}">
+    <defs><radialGradient id="${id}" cx="35%" cy="32%" r="75%"><stop offset="0%" stop-color="${p.c1}"/><stop offset="100%" stop-color="${p.c2}"/></radialGradient>${clip}</defs>
+    ${anilloAtras}<circle cx="${c}" cy="${c}" r="${rad}" fill="url(#${id})"/>${extra}
+    <circle cx="${c}" cy="${c}" r="${rad}" fill="url(#sombra)" />${anilloFrente}</svg>`;
+}
+function solSVG(size){
+  const c=size/2, r=size*.36;
+  let rayos=''; for(let i=0;i<12;i++){const a=i*30*Math.PI/180;rayos+=`<line x1="${c+Math.cos(a)*r*1.1}" y1="${c+Math.sin(a)*r*1.1}" x2="${c+Math.cos(a)*r*1.35}" y2="${c+Math.sin(a)*r*1.35}" stroke="#ffb703" stroke-width="${size*.035}" stroke-linecap="round"/>`;}
+  return `<svg viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" aria-label="Sol"><defs><radialGradient id="sg${size}" cx="40%" cy="38%"><stop offset="0%" stop-color="#fff6b0"/><stop offset="60%" stop-color="#ffc93c"/><stop offset="100%" stop-color="#f77f00"/></radialGradient></defs>${rayos}<circle cx="${c}" cy="${c}" r="${r}" fill="url(#sg${size})"/></svg>`;
+}
+// sombra global
+document.body.insertAdjacentHTML('afterbegin',`<svg width="0" height="0" style="position:absolute"><defs><radialGradient id="sombra" cx="70%" cy="70%" r="70%"><stop offset="50%" stop-color="#000" stop-opacity="0"/><stop offset="100%" stop-color="#000" stop-opacity=".45"/></radialGradient></defs></svg>`);
+
+/* ================= VOZ Y SONIDO ================= */
+let vozES=null;
+function cargarVoces(){ if(!('speechSynthesis' in window))return; const v=speechSynthesis.getVoices(); vozES=v.find(x=>/es[-_](CO|MX|US|419)/i.test(x.lang))||v.find(x=>/^es/i.test(x.lang))||null; }
+if('speechSynthesis' in window){ cargarVoces(); speechSynthesis.onvoiceschanged=cargarVoces; }
+function hablar(t){
+  try{ if(!('speechSynthesis' in window))return; speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(t.replace(/[🔊🚀🪐🎮📝☀️🧠🪨🌫️🕵️✅❌⭐👏🤔]/gu,'')); u.lang=vozES?vozES.lang:'es-ES'; if(vozES)u.voice=vozES; u.rate=.95; speechSynthesis.speak(u);
+  }catch(e){}
+}
+let ac=null;
+function sonido(bien){
+  try{ ac=ac||new (window.AudioContext||window.webkitAudioContext)();
+    const notas=bien?[523,659,784]:[330,247]; notas.forEach((f,i)=>{const o=ac.createOscillator(),g=ac.createGain();o.type=bien?'triangle':'sawtooth';o.frequency.value=f;g.gain.setValueAtTime(.12,ac.currentTime+i*.12);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+i*.12+.25);o.connect(g).connect(ac.destination);o.start(ac.currentTime+i*.12);o.stop(ac.currentTime+i*.12+.26);});
+  }catch(e){}
+}
+const mezclar=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+
+/* ================= NAVEGACIÓN ================= */
+function ir(s){
+  document.querySelectorAll('section').forEach(x=>x.classList.toggle('on',x.id===s));
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.s===s));
+  window.scrollTo({top:0,behavior:'smooth'});
+  try{ speechSynthesis.cancel(); }catch(e){}
+}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>ir(b.dataset.s));
+
+document.getElementById('logoSol').innerHTML=solSVG(34);
+document.getElementById('heroSvg').innerHTML=solSVG(110)+PLANETAS.slice(0,4).map(p=>planetaSVG(p,48)).join('')+planetaSVG(P.saturno,90);
+
+/* ================= APRENDE ================= */
+const orb=document.getElementById('orbita');
+orb.innerHTML=`<div class="pl" style="cursor:default">${solSVG(90)}<span class="n">Sol</span><small>estrella</small></div>`+
+  PLANETAS.map(p=>`<button class="pl" data-id="${p.id}">${planetaSVG(p, Math.max(40,p.r*2.2))}<span class="n">${p.nombre}</span><small>#${p.pos}</small></button>`).join('');
+orb.querySelectorAll('button.pl').forEach(b=>b.onclick=()=>mostrar(b.dataset.id));
+function mostrar(id){
+  const p=P[id];
+  orb.querySelectorAll('button.pl').forEach(b=>b.classList.toggle('sel',b.dataset.id===id));
+  const d=document.getElementById('detalle');
+  d.innerHTML=`<div class="detalle"><div class="grande">${planetaSVG(p,150)}</div><div>
+    <h2 style="margin-top:0">${p.nombre}</h2>
+    <div class="chips"><span class="chip">📍 Planeta #${p.pos} desde el Sol</span><span class="chip">${p.tipo==='rocoso'?'🪨 Rocoso':'🌫️ Gaseoso'}</span><span class="chip">🌙 Lunas: ${p.lunas}</span><span class="chip">🔄 Un año: ${p.anio}</span><span class="chip">📏 ${p.tam}</span></div>
+    <ul>${p.datos.map(x=>`<li>${x}</li>`).join('')}</ul>
+    <p><button class="voz" id="vozDet">🔊 Escuchar</button></p></div></div>`;
+  document.getElementById('vozDet').onclick=()=>hablar(`${p.nombre}. Es el planeta número ${p.pos} desde el Sol. Es un planeta ${p.tipo}. ${p.datos.join(' ')}`);
+}
+mostrar('mercurio');
+
+/* ================= ACTIVIDAD 1: ORDENAR ================= */
+const pistasOrden={
+  mercurio:'Es el más pequeño y el más cercano al Sol.',
+  venus:'Es el más caliente, cubierto de nubes espesas.',
+  tierra:'Es nuestro hogar, el planeta azul con vida.',
+  marte:'Es el planeta rojo.',
+  jupiter:'Es el más grande de todos, con una mancha roja.',
+  saturno:'Es el de los anillos famosos.',
+  urano:'Es azul verdoso y gira de lado.',
+  neptuno:'Es el más lejano, azul intenso.'
+};
+let ordSig, ordErr;
+function iniciarOrden(){
+  ordSig=1; ordErr=0;
+  document.getElementById('slots').innerHTML=PLANETAS.map(p=>`<div class="slot" id="slot${p.pos}"><span class="num">${p.pos}</span>${p.pos===1?'☀️ cerca':p.pos===8?'lejos':''}</div>`).join('');
+  document.getElementById('banco').innerHTML=mezclar(PLANETAS).map(p=>`<button data-id="${p.id}">${planetaSVG(p,56)}<span class="n">${p.nombre}</span></button>`).join('');
+  document.querySelectorAll('#banco button').forEach(b=>b.onclick=()=>elegirOrden(b));
+  const fb=document.getElementById('fbOrden'); fb.className='feedback'; fb.innerHTML='';
+  document.getElementById('errOrden').textContent='';
+}
+function elegirOrden(b){
+  const p=P[b.dataset.id], fb=document.getElementById('fbOrden');
+  const esperado=PLANETAS[ordSig-1];
+  if(p.pos===ordSig){
+    sonido(true);
+    const s=document.getElementById('slot'+ordSig); s.classList.add('lleno'); s.innerHTML=planetaSVG(p,42)+`<span>${p.nombre}</span>`;
+    b.disabled=true; ordSig++;
+    if(ordSig>8){
+      fb.className='feedback ok'; fb.innerHTML=`<b class="t">🎉 ¡Excelente! Ordenaste todo el Sistema Solar.</b>Mercurio, Venus, Tierra, Marte, Júpiter, Saturno, Urano y Neptuno. ${ordErr===0?'¡Y sin ningún error! ⭐':`Tuviste ${ordErr} ${ordErr===1?'error':'errores'}, pero lo corregiste. ¡Muy bien!`}<br><br><button class="big-btn" onclick="iniciarOrden()">🔁 Jugar otra vez</button> <button class="big-btn sec" onclick="abrirAct('quien')">Siguiente actividad ➡️</button>`;
+      hablar('¡Excelente! Ordenaste todo el Sistema Solar.');
+    } else {
+      fb.className='feedback ok'; fb.innerHTML=`<b class="t">✅ ¡Correcto! ${p.nombre} es el planeta número ${p.pos}.</b>Ahora busca el planeta número ${ordSig}.`;
+    }
+  } else {
+    sonido(false); ordErr++;
+    fb.className='feedback bad';
+    fb.innerHTML=`<b class="t">❌ Ese no es. Elegiste ${p.nombre}.</b>${p.nombre} es el planeta número <b>${p.pos}</b>, ${p.pos>ordSig?'está más lejos del Sol':'está más cerca del Sol'}. Ahora buscamos el planeta número <b>${ordSig}</b>.<br>💡 Pista: ${pistasOrden[esperado.id]} Recuerda: "Mi Viejo Tío Marcos Juega Siempre Una Nota". ¡Inténtalo de nuevo!`;
+    hablar(`Ese no es. ${p.nombre} es el planeta número ${p.pos}. Pista: ${pistasOrden[esperado.id]} Inténtalo de nuevo.`);
+    document.getElementById('errOrden').textContent=`Intentos fallidos: ${ordErr}`;
+  }
+}
+iniciarOrden();
+
+/* ================= ACTIVIDAD 2: ¿QUIÉN SOY? ================= */
+const PISTAS=[
+  {id:'tierra', t:'Tengo agua, una luna y en mí viven plantas, animales y personas. ¿Quién soy?'},
+  {id:'saturno', t:'Tengo unos anillos enormes hechos de hielo y roca. ¿Quién soy?'},
+  {id:'mercurio', t:'Soy el más pequeño y el que está más cerca del Sol. ¿Quién soy?'},
+  {id:'marte', t:'Me dicen el planeta rojo y tengo dos lunas pequeñas. ¿Quién soy?'},
+  {id:'jupiter', t:'Soy el planeta más grande y tengo una tormenta gigante llamada la Gran Mancha Roja. ¿Quién soy?'},
+  {id:'venus', t:'No soy el más cercano al Sol, pero soy el más caliente por mis nubes espesas. ¿Quién soy?'},
+  {id:'neptuno', t:'Soy el planeta más lejano del Sol y tengo vientos muy fuertes. ¿Quién soy?'},
+  {id:'urano', t:'Giro acostado, de lado, y soy de color azul verdoso. ¿Quién soy?'}
+];
+let qOrden, qi, qFallos;
+function iniciarQuien(){ qOrden=mezclar(PISTAS); qi=0; qFallos=0; pintarQuien(); }
+function pintarQuien(){
+  const q=qOrden[qi];
+  document.getElementById('barQuien').style.width=(qi/qOrden.length*100)+'%';
+  document.getElementById('numQuien').textContent=`Pista ${qi+1} de ${qOrden.length}`;
+  document.getElementById('pistaQuien').textContent=q.t;
+  const otros=mezclar(PLANETAS.filter(p=>p.id!==q.id)).slice(0,3);
+  const ops=mezclar([P[q.id],...otros]);
+  document.getElementById('opsQuien').innerHTML=ops.map(p=>`<button data-id="${p.id}">${planetaSVG(p,44)}${p.nombre}</button>`).join('');
+  document.querySelectorAll('#opsQuien button').forEach(b=>b.onclick=()=>responderQuien(b));
+  const fb=document.getElementById('fbQuien'); fb.className='feedback'; fb.innerHTML='';
+  document.getElementById('sigQuien').innerHTML='';
+}
+function responderQuien(b){
+  const q=qOrden[qi], p=P[b.dataset.id], fb=document.getElementById('fbQuien');
+  if(b.disabled)return;
+  if(p.id===q.id){
+    sonido(true); b.classList.add('bien');
+    document.querySelectorAll('#opsQuien button').forEach(x=>x.disabled=true);
+    fb.className='feedback ok'; fb.innerHTML=`<b class="t">✅ ¡Muy bien! Soy ${p.nombre}.</b>${p.frase}`;
+    hablar(`¡Muy bien! Soy ${p.nombre}.`);
+    const ultimo=qi===qOrden.length-1;
+    document.getElementById('sigQuien').innerHTML= ultimo
+      ? `<p><b>🎉 ¡Terminaste la actividad!</b> ${qFallos===0?'¡Sin errores! ⭐':`Te equivocaste ${qFallos} ${qFallos===1?'vez':'veces'}, pero aprendiste de cada error.`}</p><button class="big-btn" onclick="iniciarQuien()">🔁 Jugar otra vez</button> <button class="big-btn sec" onclick="abrirAct('clasif')">Siguiente actividad ➡️</button>`
+      : `<button class="big-btn" onclick="qi++;pintarQuien()">Siguiente pista ➡️</button>`;
+    if(ultimo) document.getElementById('barQuien').style.width='100%';
+  } else {
+    sonido(false); qFallos++; b.classList.add('mal'); b.disabled=true;
+    fb.className='feedback bad';
+    fb.innerHTML=`<b class="t">❌ No es ${p.nombre}.</b>${p.frase} Vuelve a leer la pista con calma y elige otra opción.`;
+    hablar(`No es ${p.nombre}. ${p.frase} Vuelve a intentarlo.`);
+  }
+}
+iniciarQuien();
+
+/* ================= ACTIVIDAD 3: CLASIFICAR ================= */
+let cOrden, ci, cFallos, cBloq;
+function iniciarClasif(){ cOrden=mezclar(PLANETAS); ci=0; cFallos=0; pintarClasif(); }
+function pintarClasif(){
+  cBloq=false;
+  const p=cOrden[ci];
+  document.getElementById('barClasif').style.width=(ci/cOrden.length*100)+'%';
+  document.getElementById('planClasif').innerHTML=`${planetaSVG(p,130)}<h3 style="margin:4px 0;color:var(--txt)">${p.nombre}</h3><p class="contador">Planeta ${ci+1} de 8</p>`;
+  document.getElementById('btnsClasif').style.display='flex';
+  const fb=document.getElementById('fbClasif'); fb.className='feedback'; fb.innerHTML='';
+  document.getElementById('sigClasif').innerHTML='';
+}
+function clasificar(t){
+  if(cBloq)return;
+  const p=cOrden[ci], fb=document.getElementById('fbClasif');
+  if(t===p.tipo){
+    cBloq=true; sonido(true);
+    document.getElementById('btnsClasif').style.display='none';
+    const exp=p.tipo==='rocoso'?'Es pequeño, tiene suelo firme y está entre los 4 planetas más cercanos al Sol.':'Es un gigante hecho de gases y hielo, sin suelo firme, y está entre los 4 planetas más lejanos.';
+    fb.className='feedback ok'; fb.innerHTML=`<b class="t">✅ ¡Correcto! ${p.nombre} es ${p.tipo}.</b>${exp}`;
+    hablar(`¡Correcto! ${p.nombre} es ${p.tipo}.`);
+    const ultimo=ci===cOrden.length-1;
+    document.getElementById('sigClasif').innerHTML= ultimo
+      ? `<p><b>🎉 ¡Clasificaste los 8 planetas!</b> Rocosos: Mercurio, Venus, Tierra y Marte. Gaseosos: Júpiter, Saturno, Urano y Neptuno.</p><button class="big-btn" onclick="iniciarClasif()">🔁 Jugar otra vez</button> <button class="big-btn sec" onclick="ir('evaluacion')">Ir a la evaluación 📝</button>`
+      : `<button class="big-btn" onclick="ci++;pintarClasif()">Siguiente planeta ➡️</button>`;
+    if(ultimo) document.getElementById('barClasif').style.width='100%';
+  } else {
+    sonido(false); cFallos++;
+    const exp=p.tipo==='rocoso'
+      ? `${p.nombre} es el planeta número ${p.pos}. Los 4 planetas más cercanos al Sol (Mercurio, Venus, Tierra y Marte) son <b>rocosos</b>: tienen suelo firme.`
+      : `${p.nombre} es el planeta número ${p.pos}. Los 4 planetas más lejanos (Júpiter, Saturno, Urano y Neptuno) son <b>gaseosos</b>: son gigantes de gas sin suelo firme.`;
+    fb.className='feedback bad'; fb.innerHTML=`<b class="t">❌ Revisa otra vez.</b>${exp} ¡Inténtalo de nuevo!`;
+    hablar(`Revisa otra vez. ${exp.replace(/<[^>]+>/g,'')} Inténtalo de nuevo.`);
+  }
+}
+iniciarClasif();
+
+function abrirAct(a){
+  document.querySelectorAll('.tabs-act button').forEach(b=>b.classList.toggle('on',b.dataset.a===a));
+  document.querySelectorAll('.act').forEach(x=>x.style.display=x.id==='act-'+a?'block':'none');
+  try{ speechSynthesis.cancel(); }catch(e){}
+}
+document.querySelectorAll('.tabs-act button').forEach(b=>b.onclick=()=>abrirAct(b.dataset.a));
+
+/* ================= EVALUACIÓN ================= */
+const EVAL=[
+  {p:'¿Qué hay en el centro del Sistema Solar?', ops:['El Sol','La Tierra','La Luna','Júpiter'], ok:0,
+   exp:'El Sol es una estrella y está en el centro. Todos los planetas giran a su alrededor.'},
+  {p:'¿Cuántos planetas tiene el Sistema Solar?', ops:['8','9','7','10'], ok:0,
+   exp:'Son 8 planetas. Plutón ahora se considera un planeta enano.'},
+  {p:'¿Cuál es el planeta más cercano al Sol?', ops:['Mercurio','Venus','Tierra','Marte'], ok:0,
+   exp:'Mercurio es el primero y también el más pequeño.'},
+  {p:'¿Cuál es el planeta más grande del Sistema Solar?', ops:['Júpiter','Saturno','Tierra','Neptuno'], ok:0,
+   exp:'Júpiter es el más grande: en él cabrían más de mil Tierras.'},
+  {p:'¿Qué planeta es conocido como "el planeta rojo"?', ops:['Marte','Venus','Mercurio','Urano'], ok:0,
+   exp:'Marte se ve rojo porque su suelo tiene óxido.'},
+  {p:'¿Qué planeta es famoso por sus grandes anillos?', ops:['Saturno','Júpiter','Tierra','Marte'], ok:0,
+   exp:'Saturno tiene los anillos más grandes y visibles, hechos de hielo y roca.'},
+  {p:'¿En qué lugar está la Tierra contando desde el Sol?', ops:['Tercero','Primero','Quinto','Octavo'], ok:0,
+   exp:'La Tierra es el tercer planeta: Mercurio, Venus y luego la Tierra.'},
+  {p:'¿Cuál es el planeta más caliente?', ops:['Venus','Mercurio','Marte','Júpiter'], ok:0,
+   exp:'Venus es el más caliente porque sus nubes espesas atrapan el calor, aunque Mercurio está más cerca del Sol.'},
+  {p:'¿Cuáles son los planetas rocosos?', ops:['Mercurio, Venus, Tierra y Marte','Júpiter, Saturno, Urano y Neptuno','Tierra, Júpiter, Marte y Saturno','Venus, Urano, Tierra y Neptuno'], ok:0,
+   exp:'Los rocosos son los 4 más cercanos al Sol: Mercurio, Venus, Tierra y Marte.'},
+  {p:'¿Cuál es el planeta más lejano del Sol?', ops:['Neptuno','Urano','Saturno','Plutón'], ok:0,
+   exp:'Neptuno es el octavo y último planeta. Plutón es un planeta enano.'}
+];
+let ev, ei, resp, nombre;
+function empezarEval(){
+  nombre=(document.getElementById('nombre').value||'').trim();
+  ev=EVAL.map(q=>{const idx=mezclar(q.ops.map((_,i)=>i)); return {...q, ops:idx.map(i=>q.ops[i]), ok:idx.indexOf(q.ok)};});
+  ei=0; resp=[];
+  document.getElementById('evInicio').style.display='none';
+  document.getElementById('evResultado').style.display='none';
+  document.getElementById('evPregunta').style.display='block';
+  pintarEval();
+}
+function pintarEval(){
+  const q=ev[ei];
+  document.getElementById('barEval').style.width=(ei/ev.length*100)+'%';
+  document.getElementById('numEval').textContent=`Pregunta ${ei+1} de ${ev.length}`;
+  document.getElementById('txtEval').textContent=q.p;
+  document.getElementById('opsEval').innerHTML=q.ops.map((o,i)=>`<button data-i="${i}">${String.fromCharCode(65+i)}. ${o}</button>`).join('');
+  document.querySelectorAll('#opsEval button').forEach(b=>b.onclick=()=>{
+    document.querySelectorAll('#opsEval button').forEach(x=>x.classList.remove('marcada'));
+    b.classList.add('marcada'); resp[ei]=+b.dataset.i;
+    const s=document.getElementById('btnSigEval'); s.disabled=false; s.style.opacity=1;
+  });
+  const s=document.getElementById('btnSigEval'); s.disabled=true; s.style.opacity=.5;
+  s.textContent= ei===ev.length-1 ? 'Terminar ✅' : 'Siguiente ➡️';
+}
+function hablarPregunta(){ const q=ev[ei]; hablar(q.p+' '+q.ops.map((o,i)=>String.fromCharCode(65+i)+': '+o).join('. ')); }
+function siguienteEval(){
+  if(resp[ei]===undefined)return;
+  if(ei<ev.length-1){ ei++; pintarEval(); } else resultadoEval();
+}
+function resultadoEval(){
+  document.getElementById('evPregunta').style.display='none';
+  const aciertos=ev.filter((q,i)=>resp[i]===q.ok).length;
+  const est=aciertos>=9?5:aciertos>=7?4:aciertos>=5?3:aciertos>=3?2:1;
+  const quien=nombre?`, ${nombre}`:'';
+  let msg, nivel;
+  if(aciertos>=9){ nivel='Superior'; msg=`¡Eres un verdadero astronauta${quien}! 🚀 Conoces muy bien los planetas, sus características y su lugar en el Sistema Solar.`; }
+  else if(aciertos>=7){ nivel='Alto'; msg=`¡Muy buen trabajo${quien}! 👏 Sabes mucho del Sistema Solar. Revisa las preguntas que fallaste para ser un experto.`; }
+  else if(aciertos>=5){ nivel='Básico'; msg=`¡Vas por buen camino${quien}! Ya conoces varios planetas. Te recomendamos volver a la sección "Aprende" y repasar.`; }
+  else { nivel='Bajo'; msg=`¡No te desanimes${quien}! 💪 Los astronautas también practican mucho. Vuelve a "Aprende", juega las actividades y repite la evaluación.`; }
+  const fallos=ev.map((q,i)=>resp[i]!==q.ok?i:-1).filter(i=>i>=0);
+  const r=document.getElementById('evResultado');
+  r.style.display='block';
+  r.innerHTML=`
+   <div class="card centro">
+     <div class="estrellas">${'⭐'.repeat(est)}${'☆'.repeat(5-est)}</div>
+     <h2 style="margin:.2em 0">${aciertos} de ${ev.length} respuestas correctas</h2>
+     <p class="contador">Nivel de desempeño: <b>${nivel}</b></p>
+     <p>${msg}</p>
+     <button class="voz" id="vozRes">🔊 Escuchar</button>
+   </div>
+   <div class="card">
+     <h3>📚 Retroalimentación del tema</h3>
+     <p>Recuerda las ideas más importantes:</p>
+     <ul>
+       <li>☀️ El <b>Sol</b> es una estrella y está en el centro del Sistema Solar.</li>
+       <li>🪐 Hay <b>8 planetas</b>: Mercurio, Venus, Tierra, Marte, Júpiter, Saturno, Urano y Neptuno ("Mi Viejo Tío Marcos Juega Siempre Una Nota").</li>
+       <li>🪨 Los 4 más cercanos son <b>rocosos</b>; 🌫️ los 4 más lejanos son <b>gigantes gaseosos</b>.</li>
+       <li>🌍 La <b>Tierra</b> es el tercer planeta y el único con vida conocida.</li>
+       <li>🔥 <b>Venus</b> es el más caliente, <b>Júpiter</b> el más grande, <b>Mercurio</b> el más pequeño y <b>Neptuno</b> el más lejano.</li>
+     </ul>
+   </div>
+   <div class="card">
+     <h3>🔍 Revisa tus respuestas</h3>
+     ${ev.map((q,i)=>{const bien=resp[i]===q.ok; return `<div class="res-item"><b>${i+1}. ${q.p}</b><br>
+        ${bien?`<span class="ok">✅ Correcto: ${q.ops[q.ok]}</span>`:`<span class="bad">❌ Respondiste: ${q.ops[resp[i]]}</span><br><span class="ok">✔ Respuesta correcta: ${q.ops[q.ok]}</span>`}
+        <br><span class="contador">${q.exp}</span></div>`;}).join('')}
+   </div>
+   <div class="card centro">
+     <button class="big-btn" onclick="empezarEval()">🔁 Repetir evaluación</button>
+     ${fallos.length?`<button class="big-btn sec" onclick="ir('aprende')">🪐 Repasar planetas</button>`:''}
+   </div>`;
+  document.getElementById('vozRes').onclick=()=>hablar(`Obtuviste ${aciertos} de ${ev.length} respuestas correctas. ${msg}`);
+  sonido(aciertos>=6);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>
